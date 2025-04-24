@@ -23,9 +23,9 @@ public class HMAC {
         return mac.doFinal(datos);
     }
 
-    public boolean verificar(byte[] datos, byte[] recibido) throws Exception {
-        byte[] esperado = generarHash(datos);
-        return Arrays.equals(esperado, recibido);
+    public boolean verificar(byte[] datos, byte[] hashRecibido) throws Exception {
+        byte[] hashEsperado = generarHash(datos);
+        return Arrays.equals(hashEsperado, hashRecibido);
     }
 
     public SecretKeySpec obtenerClave() {
