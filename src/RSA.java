@@ -1,25 +1,27 @@
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class RSA {
 
-    private static KeyPair parLlaves;
+    private PrivateKey clavePrivada;
+    private PublicKey clavePublica;
 
-    public static void generarLlaves() throws Exception {
-        KeyPairGenerator generador = KeyPairGenerator.getInstance("RSA");
-        generador.initialize(2048);
-        parLlaves = generador.generateKeyPair();
+    public void cargarClavePrivada(String ruta) throws Exception {
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Files.readAllBytes(Paths.get(ruta)));
+        KeyFactory factory = KeyFactory.getInstance("RSA");
+        this.clavePrivada = factory.generatePrivate(spec);
     }
 
-    public static PrivateKey obtenerLlavePrivada() {
-        return parLlaves.getPrivate();
-    }
-
-    public static PublicKey obtenerLlavePublica() {
-        return parLlaves.getPublic();
+    public void cargarClavePublica(String ruta) throws Exception {
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(Files.readAllBytes(Paths.get(ruta)));
+        KeyFactory factory = KeyFactory.getInstance("RSA");
+        this.clavePublica = factory.generatePublic(spec);
     }
 
     public static byte[] firmar(byte[] datos, PrivateKey clavePrivada) throws Exception {
@@ -34,5 +36,13 @@ public class RSA {
         firma.initVerify(clavePublica);
         firma.update(datos);
         return firma.verify(firmaBytes);
+    }
+
+    public PrivateKey obtenerClavePrivada() {
+        return this.clavePrivada;
+    }
+
+    public PublicKey obtenerClavePublica() {
+        return this.clavePublica;
     }
 }

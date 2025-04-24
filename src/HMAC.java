@@ -5,20 +5,30 @@ import java.util.Arrays;
 
 public class HMAC {
 
-    public static SecretKeySpec derivarClave(byte[] claveBytes) throws Exception {
-        MessageDigest sha = MessageDigest.getInstance("SHA-256");
-        byte[] hash = sha.digest(claveBytes);
-        return new SecretKeySpec(Arrays.copyOfRange(hash, 16, 32), "HmacSHA256");
+    private SecretKeySpec clave;
+
+    public HMAC(byte[] claveCompartida) throws Exception {
+        this.clave = generarClave(claveCompartida);
     }
 
-    public static byte[] generar(byte[] datos, SecretKeySpec claveHMAC) throws Exception {
+    public static SecretKeySpec generarClave(byte[] claveCompartida) throws Exception {
+        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha.digest(claveCompartida);
+        return new SecretKeySpec(Arrays.copyOfRange(hash, 16, 48), "HmacSHA256");
+    }
+
+    public byte[] generarHash(byte[] datos) throws Exception {
         Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(claveHMAC);
+        mac.init(clave);
         return mac.doFinal(datos);
     }
 
-    public static boolean verificar(byte[] datos, byte[] recibido, SecretKeySpec claveHMAC) throws Exception {
-        byte[] esperado = generar(datos, claveHMAC);
+    public boolean verificar(byte[] datos, byte[] recibido) throws Exception {
+        byte[] esperado = generarHash(datos);
         return Arrays.equals(esperado, recibido);
     }
-}
+
+    public SecretKeySpec obtenerClave() {
+        return this.clave;
+    }
+} 

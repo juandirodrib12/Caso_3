@@ -1,25 +1,42 @@
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 public class AES {
 
-    public static SecretKeySpec derivarClave(byte[] claveBytes) throws Exception {
-        MessageDigest sha = MessageDigest.getInstance("SHA-256");
-        byte[] hash = sha.digest(claveBytes);
-        return new SecretKeySpec(Arrays.copyOfRange(hash, 0, 16), "AES");
+    private SecretKey clave;
+    private IvParameterSpec vector;
+
+    public AES(byte[] claveCompartida) throws Exception {
+        generarClave(claveCompartida);
     }
 
-    public static byte[] cifrar(byte[] datos, SecretKeySpec claveAES) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, claveAES);
+    public void generarClave(byte[] claveCompartida) throws Exception {
+        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha.digest(claveCompartida);
+        this.clave = new SecretKeySpec(Arrays.copyOfRange(hash, 0, 16), "AES");
+    }
+
+    public void generarVector() {
+        byte[] ivBytes = new byte[16];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(ivBytes);
+        this.vector = new IvParameterSpec(ivBytes);
+    }
+
+    public byte[] cifrar(byte[] datos) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, clave, vector);
         return cipher.doFinal(datos);
     }
 
-    public static byte[] descifrar(byte[] datosCifrados, SecretKeySpec claveAES) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, claveAES);
+    public byte[] descifrar(byte[] datosCifrados) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, clave, vector);
         return cipher.doFinal(datosCifrados);
     }
-}
+} 

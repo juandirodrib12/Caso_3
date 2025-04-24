@@ -2,17 +2,37 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class DiffieHellman {
+  
+    private BigInteger base;
+    private BigInteger modulo;
+    private BigInteger claveSecreta;
+    private BigInteger clavePublica;
+    private byte[] claveCompartida;
 
-    public static BigInteger generarNumeroAleatorio(BigInteger p) {
+    public DiffieHellman(BigInteger base, BigInteger modulo) {
+        this.base = base;
+        this.modulo = modulo;
+        generarClaveSecreta(modulo);
+    }
+
+    public void generarClaveSecreta(BigInteger modulo) {
         SecureRandom random = new SecureRandom();
-        return new BigInteger(p.bitLength() - 1, random);
+        this.claveSecreta = new BigInteger(modulo.bitLength() - 1, random);
     }
 
-    public static BigInteger calcularValorCompartido(BigInteger g, BigInteger x, BigInteger p) {
-        return g.modPow(x, p);
+    public void generarClavePublica() {
+        this.clavePublica = base.modPow(claveSecreta, modulo);
     }
 
-    public static byte[] obtenerClaveCompartida(BigInteger claveCompartida) {
-        return claveCompartida.toByteArray();
+    public void generarClaveCompartida(BigInteger claveRecibida) {
+        this.claveCompartida = claveRecibida.modPow(claveSecreta, modulo).toByteArray();
+    }
+
+    public BigInteger obtenerClavePublica() {
+        return this.clavePublica;
+    }
+
+    public byte[] obtenerClaveCompartida() {
+        return this.claveCompartida;
     }
 }
