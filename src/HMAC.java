@@ -23,12 +23,8 @@ public class HMAC {
         return mac.doFinal(datos);
     }
 
-    public boolean verificar(byte[] datos, byte[] hashRecibido) throws Exception {
+    public boolean verificarHash(byte[] datos, byte[] hashRecibido) throws Exception {
         byte[] hashEsperado = generarHash(datos);
         return Arrays.equals(hashEsperado, hashRecibido);
-    }
-
-    public SecretKeySpec obtenerClave() {
-        return this.clave;
     }
 } 

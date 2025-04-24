@@ -1,9 +1,12 @@
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -12,14 +15,31 @@ public class RSA {
     private PrivateKey clavePrivada;
     private PublicKey clavePublica;
 
-    public void cargarClavePrivada(String ruta) throws Exception {
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Files.readAllBytes(Paths.get(ruta)));
+    public void generarClaves() throws Exception {
+        KeyPairGenerator generador = KeyPairGenerator.getInstance("RSA");
+        generador.initialize(2048);
+        KeyPair par = generador.generateKeyPair();
+
+        PrivateKey llavePrivada = par.getPrivate();
+        PublicKey llavePublica = par.getPublic();
+        Files.createDirectories(Paths.get("claves"));
+
+        try (FileOutputStream privOut = new FileOutputStream("claves/clave_privada.key")) {
+            privOut.write(llavePrivada.getEncoded());
+        }
+        try (FileOutputStream pubOut = new FileOutputStream("claves/clave_publica.key")) {
+            pubOut.write(llavePublica.getEncoded());
+        }
+    }
+
+    public void cargarClavePrivada() throws Exception {
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Files.readAllBytes(Paths.get("claves/clave_privada.key")));
         KeyFactory factory = KeyFactory.getInstance("RSA");
         this.clavePrivada = factory.generatePrivate(spec);
     }
 
-    public void cargarClavePublica(String ruta) throws Exception {
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(Files.readAllBytes(Paths.get(ruta)));
+    public void cargarClavePublica() throws Exception {
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(Files.readAllBytes(Paths.get("claves/clave_publica.key")));
         KeyFactory factory = KeyFactory.getInstance("RSA");
         this.clavePublica = factory.generatePublic(spec);
     }
