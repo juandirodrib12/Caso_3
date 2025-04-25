@@ -2,7 +2,6 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
@@ -11,14 +10,12 @@ public class AES {
     private SecretKey clave;
     private IvParameterSpec vector;
 
-    public AES(byte[] claveCompartida) throws Exception {
-        generarClave(claveCompartida);
+    public AES(byte[] hash) throws Exception {
+        generarClave(hash);
     }
 
-    public void generarClave(byte[] claveCompartida) throws Exception {
-        MessageDigest sha = MessageDigest.getInstance("SHA-256");
-        byte[] hash = sha.digest(claveCompartida);
-        this.clave = new SecretKeySpec(Arrays.copyOfRange(hash, 0, 16), "AES");
+    public void generarClave(byte[] hash) throws Exception {
+        this.clave = new SecretKeySpec(Arrays.copyOfRange(hash, 0, 32), "AES");
     }
 
     public void generarVector() {

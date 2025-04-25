@@ -17,11 +17,11 @@ public class RSA {
 
     public void generarClaves() throws Exception {
         KeyPairGenerator generador = KeyPairGenerator.getInstance("RSA");
-        generador.initialize(2048);
-        KeyPair par = generador.generateKeyPair();
+        generador.initialize(1024);
+        KeyPair parLlaves = generador.generateKeyPair();
 
-        PrivateKey llavePrivada = par.getPrivate();
-        PublicKey llavePublica = par.getPublic();
+        PrivateKey llavePrivada = parLlaves.getPrivate();
+        PublicKey llavePublica = parLlaves.getPublic();
         Files.createDirectories(Paths.get("claves"));
 
         try (FileOutputStream privOut = new FileOutputStream("claves/clave_privada.key")) {
