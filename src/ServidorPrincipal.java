@@ -7,7 +7,7 @@ import java.util.List;
 public class ServidorPrincipal extends Thread {
 
     private static final int PUERTO_ESCUCHA = 5000;
-    private static final int MAX_CONEXIONES = 8;
+    private static final int MAX_CONEXIONES = 4;
 
     private ServerSocket servidor;
     private List<Thread> delegados;

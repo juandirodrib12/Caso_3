@@ -6,9 +6,11 @@ import java.net.Socket;
 public class Cliente {
 
     private int idCliente;
+    private int numConsultas;
 
-    public Cliente(int idCliente) {
+    public Cliente(int idCliente, int numConsultas) {
         this.idCliente = idCliente;
+        this.numConsultas = numConsultas;
     }
 
     public void ejecutar() {
