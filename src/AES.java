@@ -36,4 +36,8 @@ public class AES {
         cipher.init(Cipher.DECRYPT_MODE, clave, vector);
         return cipher.doFinal(datosCifrados);
     }
+    public byte[] obtenerVector() {
+        return vector.getIV();
+    }
+ 
 } 
