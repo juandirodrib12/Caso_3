@@ -6,10 +6,10 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import javax.crypto.Cipher;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import javax.crypto.Cipher;
 
 public class RSA {
 
@@ -51,7 +51,7 @@ public class RSA {
         firma.update(datos);
         return firma.sign();
     }
-
+    
     public static boolean verificarFirma(byte[] datos, byte[] firmaBytes, PublicKey clavePublica) throws Exception {
         Signature firma = Signature.getInstance("SHA256withRSA");
         firma.initVerify(clavePublica);
@@ -60,29 +60,10 @@ public class RSA {
     }
 
     public static byte[] cifrar(byte[] datos, PublicKey clavePublica) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, clavePublica);
-        return cipher.doFinal(datos);
+        Cipher cifrador = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cifrador.init(Cipher.ENCRYPT_MODE, clavePublica);
+        return cifrador.doFinal(datos);
     }
-
-    public static byte[] descifrar(byte[] datosCifrados, PrivateKey clavePrivada) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.DECRYPT_MODE, clavePrivada);
-        return cipher.doFinal(datosCifrados);
-    }
-
-    public static byte[] cifrarConPrivada(byte[] datos, PrivateKey clavePrivada) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, clavePrivada);
-        return cipher.doFinal(datos);
-    }
-
-    public static byte[] descifrarConPublica(byte[] datosCifrados, PublicKey clavePublica) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.DECRYPT_MODE, clavePublica);
-        return cipher.doFinal(datosCifrados);
-    }
-
 
     public PrivateKey obtenerClavePrivada() {
         return this.clavePrivada;

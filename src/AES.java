@@ -35,9 +35,5 @@ public class AES {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, clave, vector);
         return cipher.doFinal(datosCifrados);
-    }
-    public byte[] obtenerVector() {
-        return vector.getIV();
-    }
- 
+    } 
 } 

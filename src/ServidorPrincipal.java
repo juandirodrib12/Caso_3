@@ -6,27 +6,28 @@ import java.util.List;
 
 public class ServidorPrincipal extends Thread {
 
-    private static final int PUERTO_ESCUCHA = 5000;
-    private static final int MAX_CONEXIONES = 4;
-
+    private static final int PUERTO = 5000;
     private ServerSocket servidor;
     private List<Thread> delegados;
+    private int maximoConexiones;
+    private int maximoSolicitudes;
 
-    public ServidorPrincipal() throws IOException {
-        servidor = new ServerSocket(PUERTO_ESCUCHA);
-        delegados = new ArrayList<>();
-        System.out.println("Servidor principal iniciado en el puerto " + PUERTO_ESCUCHA);
+    public ServidorPrincipal(int conexiones, int solicitudes) throws IOException {
+        this.servidor = new ServerSocket(PUERTO);
+        this.maximoConexiones = conexiones;
+        this.delegados = new ArrayList<>();
+        this.maximoSolicitudes = solicitudes;
     }
 
     public void run() {
+
         try {
             int conexiones = 0;
-            while (conexiones < MAX_CONEXIONES) {
+
+            while (conexiones < maximoConexiones) {
                 Socket socketCliente = servidor.accept();
                 int idDelegado = conexiones + 1;
-                System.out.println("Cliente aceptado. Creando delegado " + idDelegado);
-
-                Thread delegado = new Thread(new ServidorDelegado(socketCliente, idDelegado));
+                Thread delegado = new ServidorDelegado(socketCliente, idDelegado, maximoSolicitudes);
                 delegados.add(delegado);
                 delegado.start();
                 conexiones++;
@@ -35,15 +36,12 @@ public class ServidorPrincipal extends Thread {
             for (Thread delegado : delegados) {
                 delegado.join();
             }
-            System.out.println("Todos los delegados han finalizado. Cerrando servidor.");
-        } catch (IOException | InterruptedException e) {
-            System.out.println("Error en el servidor: " + e.getMessage());
-        } finally {
-            try {
-                servidor.close();
-            } catch (IOException e) {
-                System.out.println("Error al cerrar el servidor: " + e.getMessage());
-            }
+
+            servidor.close();
+        } 
+        
+        catch (Exception e) {
+            System.out.println("Error ejecutando el programa: " + e.getMessage());
         }
     }
 }
