@@ -78,7 +78,7 @@ public class Cliente {
                 // Decodificar la firma de Base64
                 byte[] firmaRecibida = Base64.getDecoder().decode(firmaBase64);
 
-                // Reconstruir el mismo mensaje que firmó el servidor
+                // Se juntan como el mensaje que firmo el servidor
                 String datosParaVerificar = G.toString() + "|" + P.toString() + "|" + Gx.toString();
                 byte[] datosBytes = datosParaVerificar.getBytes("UTF-8");
 
