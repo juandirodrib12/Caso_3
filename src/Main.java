@@ -1,3 +1,4 @@
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -19,7 +20,7 @@ public class Main {
                 Thread servidor = new ServidorPrincipal();
                 servidor.start();
 
-                Cliente cliente = new Cliente(1, 32); 
+                Cliente cliente = new Cliente(1, 1); 
                 cliente.ejecutar();
 
                 servidor.join();
@@ -62,7 +63,76 @@ public class Main {
         
                 }
             } else if (opcion == 3) {
-                // Aca se comparan tiempos
+                int[] cantidadesClientes = {1, 4, 16, 32, 64};
+            
+                for (int cantidad : cantidadesClientes) {
+                    System.out.println("Probando con " + cantidad + " clientes concurrentes.");
+            
+                    long totalTiempoAES = 0;
+                    long totalTiempoRSA = 0;
+            
+                    Thread[] clientes = new Thread[cantidad];
+                    long[] tiemposAES = new long[cantidad];
+                    long[] tiemposRSA = new long[cantidad];
+            
+                    for (int i = 0; i < cantidad; i++) {
+                        final int id = i;
+                        clientes[i] = new Thread(() -> {
+                            try {
+                                String mensaje = "respuesta del servidor: vuelos disponibles";
+            
+                                byte[] hashFalso = new byte[64];
+                                SecureRandom random = new SecureRandom();
+                                random.nextBytes(hashFalso);
+            
+                                AES aes = new AES(hashFalso);
+                                aes.generarVector();
+            
+                                long inicioAES = System.nanoTime();
+                                byte[] cifradoAES = aes.cifrar(mensaje.getBytes());
+                                long finAES = System.nanoTime();
+                                tiemposAES[id] = finAES - inicioAES;
+            
+                                RSA rsa = new RSA();
+                                rsa.cargarClavePublica();
+            
+                                long inicioRSA = System.nanoTime();
+                                byte[] cifradoRSA = RSA.cifrar(mensaje.getBytes(), rsa.obtenerClavePublica());
+                                long finRSA = System.nanoTime();
+                                tiemposRSA[id] = finRSA - inicioRSA;
+            
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                        clientes[i].start();
+                    }
+            
+                    // Esperar que todos terminen
+                    for (Thread cliente : clientes) {
+                        try {
+                            cliente.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            
+                    // Sumar tiempos
+                    for (int i = 0; i < cantidad; i++) {
+                        totalTiempoAES += tiemposAES[i];
+                        totalTiempoRSA += tiemposRSA[i];
+                    }
+            
+                    // Calcular promedios
+                    long promedioAES = totalTiempoAES / cantidad;
+                    long promedioRSA = totalTiempoRSA / cantidad;
+            
+                    System.out.println("Promedio tiempo AES para " + cantidad + " clientes: " + promedioAES + " ns");
+                    System.out.println("Promedio tiempo RSA para " + cantidad + " clientes: " + promedioRSA + " ns");
+                }
+            } else if (opcion == 0) {
+                System.out.println("Saliendo del programa.");
+                return;
             }
             else {
                 System.out.println("Opción no válida. Por favor, elija una opción válida.");
