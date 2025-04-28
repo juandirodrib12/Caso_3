@@ -8,7 +8,7 @@ public class ServidorPrincipal extends Thread {
     private MedidorTiempos medidorTiempos;
     private static final int PUERTO = 5000;
     private ServerSocket servidor;
-    private List<Thread> delegados;
+    private List<ServidorDelegado> delegados;
     private ArrayList<Servicio> servicios;
     private int maximoConexiones;
     private int maximoSolicitudes;
@@ -40,7 +40,7 @@ public class ServidorPrincipal extends Thread {
             while (conexiones < maximoConexiones) {
                 Socket socketCliente = servidor.accept();
                 int idDelegado = conexiones + 1;
-                Thread delegado = new ServidorDelegado(socketCliente, idDelegado, maximoSolicitudes, servicios, medidorTiempos);
+                ServidorDelegado delegado = new ServidorDelegado(socketCliente, idDelegado, maximoSolicitudes, servicios, medidorTiempos);
                 delegados.add(delegado);
                 delegado.start();
                 conexiones++;
