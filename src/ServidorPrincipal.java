@@ -5,6 +5,7 @@ import java.util.List;
 
 public class ServidorPrincipal extends Thread {
 
+    private MedidorTiempos medidorTiempos;
     private static final int PUERTO = 5000;
     private ServerSocket servidor;
     private List<Thread> delegados;
@@ -18,6 +19,7 @@ public class ServidorPrincipal extends Thread {
         this.delegados = new ArrayList<>();
         this.maximoSolicitudes = solicitudes;
         this.servicios = generarServicios();
+        this.medidorTiempos = new MedidorTiempos();
     }
 
     public ArrayList<Servicio> generarServicios() {
@@ -38,7 +40,7 @@ public class ServidorPrincipal extends Thread {
             while (conexiones < maximoConexiones) {
                 Socket socketCliente = servidor.accept();
                 int idDelegado = conexiones + 1;
-                Thread delegado = new ServidorDelegado(socketCliente, idDelegado, maximoSolicitudes, servicios);
+                Thread delegado = new ServidorDelegado(socketCliente, idDelegado, maximoSolicitudes, servicios, medidorTiempos);
                 delegados.add(delegado);
                 delegado.start();
                 conexiones++;
@@ -51,6 +53,8 @@ public class ServidorPrincipal extends Thread {
             servidor.close();
             System.out.println("Servidor principal: Todas las conexiones han sido atendidas.");
             System.out.println("Servidor principal: Servidor cerrado.");
+
+            medidorTiempos.exportarCSV("tiempos/resultados.csv");
         } 
         
         catch (Exception e) {

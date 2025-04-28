@@ -11,16 +11,18 @@ import java.math.BigInteger;
 
 public class ServidorDelegado extends Thread {
 
+    private MedidorTiempos medidorTiempos;
     private Socket socket;
     private int id;
     private int maximoSolicitudes;
     private ArrayList<Servicio> servicios;
 
-    public ServidorDelegado(Socket socket, int id, int solicitudes, ArrayList<Servicio> servicios) {
+    public ServidorDelegado(Socket socket, int id, int solicitudes, ArrayList<Servicio> servicios, MedidorTiempos medidorTiempos) {
         this.socket = socket;
         this.id = id;
         this.maximoSolicitudes = solicitudes;
         this.servicios = servicios;
+        this.medidorTiempos = medidorTiempos;
     }
 
     @Override
@@ -59,7 +61,12 @@ public class ServidorDelegado extends Thread {
 
             String retoBase64 = entrada.readLine();
             byte[] reto = Base64.getDecoder().decode(retoBase64);
+            double inicioFirmar = System.nanoTime();
             byte[] firma = RSA.firmar(reto, clavePrivadaRSA);
+            double finFirmar = System.nanoTime();
+            double tiempoFirmar = (finFirmar - inicioFirmar)/1000000;
+            tiempoFirmar = Math.round(tiempoFirmar * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoFirmar(tiempoFirmar);
             System.out.println("Servidor delegado " + id + ": Reto recibido del cliente con éxito.");
 
             String firmaBase64 = Base64.getEncoder().encodeToString(firma);
@@ -82,15 +89,30 @@ public class ServidorDelegado extends Thread {
             salida.println(modulo);
             System.out.println("Servidor delegado " + id + ": Clave pública del servidor, base y módulo enviados al cliente con éxito.");
 
+            double inicioFirmar2 = System.nanoTime();
             byte[] firmaClavePublicaServidor = RSA.firmar(clavePublicaServidor.toByteArray(), clavePrivadaRSA);
+            double finFirmar2 = System.nanoTime();
+            double tiempoFirmar2 = (finFirmar2 - inicioFirmar2)/1000000;
+            tiempoFirmar2 = Math.round(tiempoFirmar2 * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoFirmar(tiempoFirmar2);
             String firmaClavePublicaServidorBase64 = Base64.getEncoder().encodeToString(firmaClavePublicaServidor);
             salida.println(firmaClavePublicaServidorBase64);
             
+            double inicioFirmar3 = System.nanoTime();
             byte[] firmaBase = RSA.firmar(base.toByteArray(), clavePrivadaRSA);
+            double finFirmar3 = System.nanoTime();
+            double tiempoFirmar3 = (finFirmar3 - inicioFirmar3)/1000000;
+            tiempoFirmar3 = Math.round(tiempoFirmar3 * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoFirmar(tiempoFirmar3);
             String firmaBaseBase64 = Base64.getEncoder().encodeToString(firmaBase);
             salida.println(firmaBaseBase64);
 
+            double inicioFirmar4 = System.nanoTime();
             byte[] firmaModulo = RSA.firmar(modulo.toByteArray(), clavePrivadaRSA);
+            double finFirmar4 = System.nanoTime();
+            double tiempoFirmar4 = (finFirmar4 - inicioFirmar4)/1000000;
+            tiempoFirmar4 = Math.round(tiempoFirmar4 * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoFirmar(tiempoFirmar4);
             String firmaModuloBase64 = Base64.getEncoder().encodeToString(firmaModulo);
             salida.println(firmaModuloBase64);
 
@@ -117,7 +139,12 @@ public class ServidorDelegado extends Thread {
             System.out.println("Servidor delegado " + id + ": Vector de inicialización recibido del cliente con éxito.");
 
             byte[] serviciosBytes = serializarServicios(servicios);
+            double inicioCifrar = System.nanoTime();
             byte[] serviciosCifrados = aes.cifrar(serviciosBytes);
+            double finCifrar = System.nanoTime();
+            double tiempoCifrar = (finCifrar - inicioCifrar)/1000000;
+            tiempoCifrar = Math.round(tiempoCifrar * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoCifrar(tiempoCifrar);
             String serviciosCifradosBase64 = Base64.getEncoder().encodeToString(serviciosCifrados);
             salida.println(serviciosCifradosBase64);
             System.out.println("Servidor delegado " + id + ": Servicios cifrados enviados al cliente con éxito.");
@@ -146,11 +173,21 @@ public class ServidorDelegado extends Thread {
 
             String firmaServicioBase64 = entrada.readLine();
             byte[] firmaServicio = Base64.getDecoder().decode(firmaServicioBase64);
+            double inicioVerificar = System.nanoTime();
             boolean verificacionServicio = hmac.verificarHash(servicioDescifrado, firmaServicio);
+            double finVerificar = System.nanoTime();
+            double tiempoVerificar = (finVerificar - inicioVerificar)/1000000;
+            tiempoVerificar = Math.round(tiempoVerificar * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoVerificar(tiempoVerificar);
 
             String firmaIpClienteBase64 = entrada.readLine();
             byte[] firmaIpCliente = Base64.getDecoder().decode(firmaIpClienteBase64);
+            double inicioVerificar2 = System.nanoTime();
             boolean verificacionIp = hmac.verificarHash(ipClienteDescifrada, firmaIpCliente);
+            double finVerificar2 = System.nanoTime();
+            double tiempoVerificar2 = (finVerificar2 - inicioVerificar2)/1000000;
+            tiempoVerificar2 = Math.round(tiempoVerificar2 * 100.0) / 100.0;
+            medidorTiempos.agregarTiempoVerificar(tiempoVerificar2);
 
             System.out.println("Servidor delegado " + id + ": Firmas del servicio seleccionado e IP del cliente recibidas del cliente con éxito.");
 
