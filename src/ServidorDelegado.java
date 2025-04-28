@@ -203,7 +203,7 @@ public class ServidorDelegado extends Thread {
             String ipServidor;
             String puertoServidor;
 
-            if (servicio > servicios.size()) {
+            if (servicio < servicios.size()) {
                 ipServidor = "192.168.2." + servicio;
                 puertoServidor = "500" + servicio;
             }
