@@ -1,18 +1,20 @@
-public class Servicio {
+import java.io.Serializable;
+
+public class Servicio implements Serializable {
     
-    private final String id;
+    private final int id;
     private final String nombre;
 
-    public Servicio(String id, String nombre) {
+    public Servicio(int id, String nombre) {
         this.id = id;
         this.nombre = nombre;
     }
 
-    public String getId() {
+    public int obtenerId() {
         return this.id;
     }
 
-    public String getNombre() {
+    public String obtenerNombre() {
         return this.nombre;
     }
 }

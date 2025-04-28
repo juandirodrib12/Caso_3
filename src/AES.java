@@ -25,6 +25,10 @@ public class AES {
         this.vector = new IvParameterSpec(ivBytes);
     }
 
+    public void generarVector(byte[] ivBytes) {
+        this.vector = new IvParameterSpec(ivBytes);
+    }
+
     public byte[] cifrar(byte[] datos) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, clave, vector);
@@ -36,4 +40,8 @@ public class AES {
         cipher.init(Cipher.DECRYPT_MODE, clave, vector);
         return cipher.doFinal(datosCifrados);
     } 
+
+    public byte[] obtenerVector() {
+        return this.vector.getIV();
+    }
 } 

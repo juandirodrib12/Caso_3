@@ -60,8 +60,4 @@ public class DiffieHellman {
     public BigInteger obtenerClavePublica() {
         return this.clavePublica;
     }
-
-    public byte[] obtenerClaveCompartida() {
-        return this.claveCompartida;
-    }
 }
